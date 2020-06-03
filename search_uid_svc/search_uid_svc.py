@@ -29,7 +29,6 @@ table.column_headers = ["Storage System", "LUN name", "LUN UID", "LUN ID", "Pool
 def connect_to_tpc(spc_base_url, p_username, p_password):
     '''
     Connects to single TPC, returns the session (connection) hanlder. 
-    You can use this handler later for subsequent HTTP calls.
     '''
     session = requests.Session()
     session.verify = False
@@ -40,7 +39,6 @@ def connect_to_tpc(spc_base_url, p_username, p_password):
 def get_from_tpc(session, url):
     '''
     For given, opened, session it sends HTTP GET call to the TPC.
-    Make sure you are using the same spc_base_url as part of url arg that was used with connect_to_tpc.
     '''
     response = session.get(url)
     response.raise_for_status()
