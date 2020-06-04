@@ -9,23 +9,24 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from beautifultable import BeautifulTable
 
-#Define TPC instances
+#Define TPC instances API endpoint.
 tpc1 = 'https://tpc1:9569/srm/'
 tpc2 = 'https://tpc2:9569/srm/'
 tpc3 = 'https://tpc3:9569/srm/'
+#Create list of TPC instance.
 tpclist =[tpc1,tpc2,tpc3]
-#Credentials for TPC
+#Credentials for TPC authorization
 username = getpass.getuser()
 password = getpass.getpass()
 #File with LUN UID
 serial = open("serial.txt").read().splitlines()
-#Define a table for data output
+#Define a table for data output. 
 table = BeautifulTable(max_width=10000)
 table.set_style(BeautifulTable.STYLE_COMPACT)
 table.column_headers = ["Storage System", "LUN name", "LUN UID", "LUN ID", "Pool", "Compression"]
 
 #Functions
-#TPC handlers
+#TPC handlers to simplify TPC connection/authentification 
 def connect_to_tpc(spc_base_url, p_username, p_password):
     '''
     Connects to single TPC, returns the session (connection) hanlder. 
@@ -48,17 +49,24 @@ def get_from_tpc(session, url):
 #Main function
 def tpc_data(spc_base_url):
     session = connect_to_tpc(spc_base_url, username, password)
-    reponse_json = get_from_tpc(session, spc_base_url + 'REST/api/v1/' + 'StorageSystems')
-    filtr = [i for i in reponse_json if i['Type'] == 'SAN Volume Controller - 2145']
+    #Getting information about all Storage systems in particular TPC server
+    response_json = get_from_tpc(session, spc_base_url + 'REST/api/v1/' + 'StorageSystems')
+    #Filter by Type for SVC storage device
+    filtr = [i for i in response_json if i['Type'] == 'SAN Volume Controller - 2145']
     for id in filtr:
+        #Store unique SVC ID as variable.
         vid = id['id']
-        reponse_json1 = get_from_tpc(session, spc_base_url + 'REST/api/v1/' + 'StorageSystems/'+vid +'/Volumes')
+        #Create a json with volumes from particular SVC
+        response_json1 = get_from_tpc(session, spc_base_url + 'REST/api/v1/' + 'StorageSystems/'+vid +'/Volumes')
+        #Main loop to compare Volumes from TPC vs serial.txt
         for s in serial:
-            filt = [i for i in reponse_json1 if i['Volume Unique ID'] == s.lower()]
+            filt = [i for i in response_json1 if i['Volume Unique ID'] == s.lower()]
             for name in filt:
+                #Prepare table with results
                 table.append_row([name['Storage System'],name['Name'],name['Volume Unique ID'], name['Volume ID'], name['Pool'],name['Compressed']])
 
 #main
 for name in tpclist:
     tpc_data(name)
+    
 print(table)
