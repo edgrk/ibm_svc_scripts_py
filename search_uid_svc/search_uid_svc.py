@@ -10,11 +10,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from beautifultable import BeautifulTable
 
 #Define TPC instances API endpoint.
-tpc1 = 'https://tpc1:9569/srm/'
-tpc2 = 'https://tpc2:9569/srm/'
-tpc3 = 'https://tpc3:9569/srm/'
+tpc1 = 'https://yourtpc1url:9569/srm/'
+tpc2 = 'https://yourtpc2url:9569/srm/'
 #Create list of TPC instance.
-tpclist =[tpc1,tpc2,tpc3]
+tpclist =[tpc1,tpc2]
 #Credentials for TPC authorization
 username = getpass.getuser()
 password = getpass.getpass()
